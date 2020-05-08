@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#define NUMTHREADS 4
 
 struct State{
 	int stateID;
@@ -41,6 +42,13 @@ struct Country{
 	char countryName[50];
 
 	char winner;
+};
+
+//posix only allows passing of one argument in pthread create
+struct threadData{
+	int start, stop;
+	struct State* stateArray;
+
 };
 
 void mail(struct State* states, int index){
@@ -99,6 +107,20 @@ void vote(struct State* states, int index){
 	else{
 		states[index].winner = 'b';
 	}
+}
+
+void* threadLearn(void* td){
+	/*
+	struct threadData* data = (struct threadData *) td;
+	int start = data -> start;
+	int stop = data -> stop;
+	struct State* stateArrayT = data->stateArray;
+
+	printf("Thanks for coming \n");
+	*/
+	
+	printf("\nWORKING \n");
+	return NULL;
 }
 
 void aggregateVotes(struct State*states, int index, struct Country usaPtr, 
@@ -337,6 +359,44 @@ int main(int argc, char ** argv){
 			&usaPtr.totalCost, &popVoteRed, &popVoteBlue);
 	}
 	
+
+
+	//experimentation ...
+	//thread id's for all threads
+	//pthread_t tid[NUMTHREADS];
+
+	//each thread has struct for params
+	struct threadData data[NUMTHREADS];
+	int i;
+
+    int taskPerThread = (numberOfStates + NUMTHREADS -1)/NUMTHREADS;
+    printf("%d states per thread \n", taskPerThread);
+
+
+    for(int i = 0; i < NUMTHREADS; i++){
+        data[i].start = i*taskPerThread;
+        data[i].stop = (i+1) *taskPerThread;
+        data[i].stateArray = states;
+        printf("%d\n", data[i].stateArray[i].actualVoters);
+    }
+
+    data[NUMTHREADS-1].stop = numberOfStates;
+
+    //printf("%d \n", data[0].stop);
+    /*
+    for(i = 0; i < NUMTHREADS; i++){
+        pthread_create(&tid[i], NULL, threadLearn, &data[i]);
+    }
+
+    for(i = 0; i < NUMTHREADS; i++){
+        pthread_join(&tid[i], NULL);
+    }
+    */
+    pthread_t tid;
+    printf("Before \n");
+    pthread_create(&tid, NULL, threadLearn,NULL);
+    pthread_join(&tid, NULL);
+    printf("After \n");
 
 
 
