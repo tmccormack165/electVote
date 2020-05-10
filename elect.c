@@ -43,6 +43,13 @@ struct Country{
 	char winner;
 };
 
+//posix only allows passing of one argument in pthread create
+struct threadData{
+	int start, stop;
+	int* stateArray;
+
+};
+
 void mail(struct State* states, int index){
 	if(states[index].distanceFromCenter == 0){
 		states[index].mailTime = 3;
@@ -79,6 +86,8 @@ void vote(struct State* states, int index){
 	//int n; // used 
 	int cap = states[index].actualVoters; 
 	int vote;
+	struct timeval start, end; //for timing
+
 
 	//printf("%d actual voters \n", states[index].actualVoters);
 	//allocate ten thousand 1's or 0's
@@ -160,6 +169,8 @@ int main(int argc, char ** argv){
 	int intraZoneTime = 153; //3 dollars X registered Voters
 	int intraZoneCost = 255;  
 	float turn_out = 0.5;
+	struct timeval start, end; //for timing
+
 
 	srand(time(NULL));
 
@@ -280,6 +291,7 @@ int main(int argc, char ** argv){
 		printf("ERROR: zone.txt is nonexistent in directory");
 	}
 
+	gettimeofday(&start, NULL); //start of measurement
 	for(m = 0; m < numberOfStates; m++){
 		fscanf(fp_zone, "%s", z);
 		states[m].zone = atoi(&z);
@@ -338,9 +350,15 @@ int main(int argc, char ** argv){
 	}
 	
 
-
+	gettimeofday(&end, NULL); //end
 
 	free(states);
+
+	//time calculation
+  	unsigned long secs = end.tv_sec - start.tv_sec;
+  	unsigned long usecs = end.tv_usec - start.tv_usec;
+  	long total = ((((long)(secs))*1000000) + ((long)(usecs)))/1000; /*total time in milliseconds*/
+  	printf("Runtime: %ld ms\n", total);
 
 
 	return 0;

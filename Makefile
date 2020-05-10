@@ -1,8 +1,15 @@
-out: elect.o 
-	gcc elect.o -o out
-
-elect.o: elect.c
-	gcc -c elect.c -lpthread
+out : electThread.c
+	gcc  electThread.c -o opt -lpthread -w
+	gcc elect.c -o naive -w
 
 clean:
-	rm *.o out
+	rm  naive opt
+
+
+
+
+
+
+
+
+
